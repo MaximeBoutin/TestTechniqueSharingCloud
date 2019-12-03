@@ -1,20 +1,17 @@
 package com.maximeboutin.testtechnique.sharingcloud;
 
-import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 
-import com.maximeboutin.testtechnique.sharingcloud.utils.NotifService;
-import com.maximeboutin.testtechnique.sharingcloud.utils.TwitterAPI;
+import com.maximeboutin.testtechnique.sharingcloud.utils.MyBroadcastReceiver;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,42 +21,26 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-
-        int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 0;
-        // Here, thisActivity is the current activity
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.GET_ACCOUNTS)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.GET_ACCOUNTS)) {
-
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-            } else {
-
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.GET_ACCOUNTS},
-                        MY_PERMISSIONS_REQUEST_READ_CONTACTS);
-            }
-        }
+        // A faire en premier d'après la documentation
         createNotificationChannel();
 
-        TwitterAPI twitterAPI = new TwitterAPI("M3m67FdpWsADQXzcUrDRlwSf0Pl4Payf94peJhxFyWr1LYrfnI","bfBB8M3sRV8uSxvXSN3brVQIp");
-        String rep = twitterAPI.requestBearerToken();
+        BroadcastReceiver br = new MyBroadcastReceiver();
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        filter.addAction(Intent.ACTION_BOOT_COMPLETED);
+        this.registerReceiver(br, filter);
 
-        Log.i("TwitterAPI", rep);
+
+//        TwitterAPI twitterAPI = new TwitterAPI("M3m67FdpWsADQXzcUrDRlwSf0Pl4Payf94peJhxFyWr1LYrfnI","bfBB8M3sRV8uSxvXSN3brVQIp");
+//        String rep = twitterAPI.requestBearerToken();
+//
+//        Log.i("TwitterAPI", rep);
 
 //
 //        String response = twitterAPI.requestTrending();
 //
-        Intent serviceIntent = new Intent();
-
-        NotifService.enqueueWork(this.getApplicationContext(), NotifService.class, 1000, serviceIntent);
+//        Intent serviceIntent = new Intent();
+//
+//        NotifService.enqueueWork(this.getApplicationContext(), NotifService.class, 1000, serviceIntent);
 
 
 

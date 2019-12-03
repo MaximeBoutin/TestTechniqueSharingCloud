@@ -2,6 +2,7 @@ package com.maximeboutin.testtechnique.sharingcloud.utils;
 
 import android.os.AsyncTask;
 import android.util.Base64;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,8 +57,11 @@ public class TwitterAPI {
             rep = task.get();
         } catch (ExecutionException e) {
             e.printStackTrace();
+            Log.i("TwitterAPI", "ExecutionException Error : " + e.getStackTrace().toString());
         } catch (InterruptedException e) {
             e.printStackTrace();
+            Log.i("TwitterAPI", "InterruptedException Error : " + e.getStackTrace().toString());
+
         }
 
         this.bearerToken = rep;
@@ -194,6 +198,5 @@ public class TwitterAPI {
             return response;
         }
     }
-
 }
 
