@@ -27,12 +27,14 @@ public class NotifService extends JobIntentService {
                 //TODO A enlever, utile pour débug.
                 Thread.sleep(10000);
 
+                TwitterAPI twitterAPI = new TwitterAPI();
+                String trendig = twitterAPI.requestTrending();
+
                 Intent intent2 = new Intent(this, DisplayTwitterFeedActivity.class);
+                intent.putExtra("trendingHashtag", trendig);
                 intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent2, 0);
 
-                TwitterAPI twitterAPI = new TwitterAPI();
-                String trendig = twitterAPI.requestTrending();
 
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "idChannel")
                         .setSmallIcon(R.drawable.ic_notif_twitter)

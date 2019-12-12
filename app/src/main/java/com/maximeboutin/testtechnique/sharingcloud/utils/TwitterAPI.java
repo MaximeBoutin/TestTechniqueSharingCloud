@@ -15,6 +15,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 
@@ -86,6 +88,43 @@ public class TwitterAPI {
             e.printStackTrace();
         }
         return rep;
+    }
+
+    public JSONObject searchWithHashtag(String keyword)
+    {
+        JSONObject rep = null;
+
+        RequestTweetWithHashtag task = new RequestTweetWithHashtag();
+        task.execute(keyword);
+        try {
+            rep = task.get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return rep;
+    }
+
+    public List<TwitterMessage> createListOfTwitterMessages(JSONObject twitterResponse) throws JSONException {
+
+        JSONArray listOfMessages = twitterResponse.getJSONArray("statuses");
+
+
+        List response = new ArrayList();
+
+        for (int i = 0; i < listOfMessages.length(); i++){
+
+            JSONObject message = listOfMessages.getJSONObject(i);
+
+            String text = message.getString("full_text");
+            String username = message.getJSONObject("user").getString("name");
+            String pictureURL = message.getJSONObject("user").getString("profile_image_url");
+
+            response.add(new TwitterMessage(username, text, pictureURL));
+
+        }
+        return response;
     }
 
     /**
@@ -177,13 +216,11 @@ public class TwitterAPI {
                 if (responseCode == 200) {
                     BufferedReader rd = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
                     String line;
-
                     // Lit la réponse du serveur
                     while ((line = rd.readLine()) != null) {
                         response += line;
 
                     }
-
                     // Get le nom du top 1 TT, le format est [{"trends";[{"name":...}]].
                     response = new JSONArray(response).getJSONObject(0).getJSONArray("trends").getJSONObject(0).getString("name");
                 }
@@ -198,5 +235,56 @@ public class TwitterAPI {
             return response;
         }
     }
+
+    /**
+     * @brief Classe privée permettant de faire la recherche via mot clé sur Twitter
+     */
+    private class RequestTweetWithHashtag extends AsyncTask<String, Integer, JSONObject> {
+
+        @Override
+        protected JSONObject doInBackground(String... string) {
+            // Variables locales de la fonction
+            URL url = null;
+            HttpURLConnection urlConnection = null;
+            JSONObject response = null;
+            String keyword = string[0];
+
+            try {
+                // On formate la requete HTTP
+                url = new URL("https://api.twitter.com/1.1/search/tweets.json?tweet_mode=extended&include_entities=false&q=%23" + keyword);
+                urlConnection = (HttpURLConnection) url.openConnection();
+
+                urlConnection.setRequestProperty("Host", "api.twitter.com");
+                urlConnection.setRequestProperty("User-Agent", " My Twitter App v1.0.23");
+                urlConnection.setRequestProperty("Authorization", "Bearer " + bearerToken);
+                urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+
+                // On lit l'entete de la reponse
+                int responseCode = urlConnection.getResponseCode();
+                if (responseCode == 200) {
+                    BufferedReader rd = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                    String line;
+                    String responseRead = "";
+
+                    // Lit la réponse du serveur
+                    while ((line = rd.readLine()) != null) {
+                        responseRead += line;
+
+                    }
+
+                    response = new JSONObject(responseRead);
+                }
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return response;
+        }
+    }
+
 }
 

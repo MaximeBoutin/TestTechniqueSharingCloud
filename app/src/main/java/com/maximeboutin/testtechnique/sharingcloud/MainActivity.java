@@ -15,8 +15,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    String token = "";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,19 +27,12 @@ public class MainActivity extends AppCompatActivity {
         filter.addAction(Intent.ACTION_BOOT_COMPLETED);
         this.registerReceiver(br, filter);
 
-
+//
 //        TwitterAPI twitterAPI = new TwitterAPI("M3m67FdpWsADQXzcUrDRlwSf0Pl4Payf94peJhxFyWr1LYrfnI","bfBB8M3sRV8uSxvXSN3brVQIp");
-//        String rep = twitterAPI.requestBearerToken();
+//        twitterAPI.requestBearerToken();
 //
-//        Log.i("TwitterAPI", rep);
-
-//
-//        String response = twitterAPI.requestTrending();
-//
-//        Intent serviceIntent = new Intent();
-//
-//        NotifService.enqueueWork(this.getApplicationContext(), NotifService.class, 1000, serviceIntent);
-
+//        Intent serviceIntent = new Intent(this, DisplayTwitterFeedActivity.class);
+//        startActivity(serviceIntent);
 
 
     }
