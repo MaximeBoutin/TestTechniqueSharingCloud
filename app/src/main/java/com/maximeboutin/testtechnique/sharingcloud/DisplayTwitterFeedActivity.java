@@ -1,6 +1,7 @@
 package com.maximeboutin.testtechnique.sharingcloud;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -12,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.maximeboutin.testtechnique.sharingcloud.utils.TwitterAPI;
 import com.maximeboutin.testtechnique.sharingcloud.utils.TwitterMessage;
@@ -38,17 +40,40 @@ public class DisplayTwitterFeedActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        TwitterAPI twitterAPI = new TwitterAPI();
-        JSONObject test = twitterAPI.searchWithHashtag("Popcorn");
-        List<TwitterMessage> messages;
-        try {
-            messages = twitterAPI.createListOfTwitterMessages(test);
-            ListView listView = findViewById(R.id.list_view_twitter_feed);
+        SharedPreferences settings = getSharedPreferences("SharedPreference_SC", 0);
+        String trending = settings.getString("trending", "");
+        // Reset the Shared Preference
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("trending", "");
+        editor.commit();
 
-            listView.setAdapter(new TweetAdapter(this, messages));
-        } catch (JSONException e) {
-            e.printStackTrace();
+        //Si le trendig est déja set, chercher les tweets correspondants, sinon demander le trending actuel.
+        TwitterAPI twitterAPI = new TwitterAPI();
+        JSONObject tweets = null;
+        if(trending != ""){
+            tweets = twitterAPI.searchWithHashtag(trending);
+        }else{
+            twitterAPI.requestBearerToken();
+            String hastag = twitterAPI.requestTrending();
+            tweets = twitterAPI.searchWithHashtag(hastag);
         }
+
+        if(tweets != null) {
+            List<TwitterMessage> messages;
+            try{
+                messages = twitterAPI.createListOfTwitterMessages(tweets);
+                ListView listView = findViewById(R.id.list_view_twitter_feed);
+
+                listView.setAdapter(new TweetAdapter(this, messages));
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Erreur lors de la récupération des tweets", Toast.LENGTH_LONG);
+            }
+        }else {
+            Toast.makeText(this, "Erreur lors de la récupération des tweets", Toast.LENGTH_LONG);
+
+        }
+
     }
 
     public class TweetAdapter extends ArrayAdapter<TwitterMessage> {

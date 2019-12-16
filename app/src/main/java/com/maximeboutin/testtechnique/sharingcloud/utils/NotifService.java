@@ -2,6 +2,7 @@ package com.maximeboutin.testtechnique.sharingcloud.utils;
 
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.maximeboutin.testtechnique.sharingcloud.DisplayTwitterFeedActivity;
@@ -31,10 +32,15 @@ public class NotifService extends JobIntentService {
                 String trendig = twitterAPI.requestTrending();
 
                 Intent intent2 = new Intent(this, DisplayTwitterFeedActivity.class);
-                intent.putExtra("trendingHashtag", trendig);
                 intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent2, 0);
 
+                SharedPreferences settings = getSharedPreferences("SharedPreference_SC", 0);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString("trending", trendig);
+                editor.commit();
+
+                // Set le SharedPreference for use in the twitter display api
 
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "idChannel")
                         .setSmallIcon(R.drawable.ic_notif_twitter)

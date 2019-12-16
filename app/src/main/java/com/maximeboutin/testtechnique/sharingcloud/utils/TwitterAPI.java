@@ -53,21 +53,24 @@ public class TwitterAPI {
     public String requestBearerToken() {
         String rep = "";
 
-        RequestBearerTockenTask task = new RequestBearerTockenTask();
-        task.execute(consumerKey, secretKey);
-        try {
-            rep = task.get();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-            Log.i("TwitterAPI", "ExecutionException Error : " + e.getStackTrace().toString());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            Log.i("TwitterAPI", "InterruptedException Error : " + e.getStackTrace().toString());
+        if(bearerToken == ""){
+            RequestBearerTockenTask task = new RequestBearerTockenTask();
+            task.execute(consumerKey, secretKey);
+            try {
+                rep = task.get();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+                Log.i("TwitterAPI", "ExecutionException Error : " + e.getStackTrace().toString());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                Log.i("TwitterAPI", "InterruptedException Error : " + e.getStackTrace().toString());
 
+            }
+
+            this.bearerToken = rep;
+        }else{
+            rep = bearerToken;
         }
-
-        this.bearerToken = rep;
-
         return rep;
     }
 
@@ -247,7 +250,8 @@ public class TwitterAPI {
             URL url = null;
             HttpURLConnection urlConnection = null;
             JSONObject response = null;
-            String keyword = string[0];
+            //Enlever le # dans le texte
+            String keyword = string[0].substring(1);
 
             try {
                 // On formate la requete HTTP
